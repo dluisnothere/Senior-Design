@@ -7,15 +7,14 @@ public class Portal : MonoBehaviour
     public Portal targetPortalLeft;
     public Portal targetPortalRight;
     public Portal activePortal;
+    public Portal inactivePortal;
 
     public MeshRenderer screen;
     Camera playerCam;
     Camera portalCam;
     RenderTexture viewTexture;
 
-    public bool isLeftPortal;
-
-    //List<TraversalEntity> knownEntities;
+    // TODO: Desperately need to clean up the logic in this class with regards to how portals work.
 
     private void Awake()
     {
@@ -45,6 +44,7 @@ public class Portal : MonoBehaviour
 
     public void Render()
     {
+
         screen.enabled = false;
 
         Vector2 xzPlayer = new Vector2(playerCam.transform.position.x, playerCam.transform.position.z);
@@ -56,48 +56,35 @@ public class Portal : MonoBehaviour
         Vector2 portalUp = new Vector2(this.transform.up.x, this.transform.up.z);
 
         float dotProd = Vector2.Dot(portalUp, playerToPortal);
-        Debug.Log("dotProd: " + dotProd);
+        //Debug.Log("dotProd: " + dotProd);
 
-        if (dotProd > 0)
+        
+        if (dotProd < 0)
         {
-            GenerateViewTexture(this.targetPortalRight);
-            Matrix4x4 playerCamNoY = playerCam.transform.localToWorldMatrix;
-
-            var y = portalCam.transform.position.y;
-
-            var matrix = transform.localToWorldMatrix * targetPortalRight.transform.worldToLocalMatrix * playerCamNoY;
-
-            // how to apply transform instead of setting the transform. How to keep y constant?
-            portalCam.transform.SetPositionAndRotation(matrix.GetColumn(3), matrix.rotation);
-            portalCam.transform.position = new Vector3(portalCam.transform.position.x, y, portalCam.transform.position.z);
-
-            // Render camera
-            portalCam.Render();
-
-            screen.enabled = true;
             this.activePortal = this.targetPortalRight;
+            this.inactivePortal = this.targetPortalLeft;
 
-        } else if (dotProd < 0)
+        } else if (dotProd > 0)
         {
-            GenerateViewTexture(this.targetPortalLeft);
-
-            Matrix4x4 playerCamNoY = playerCam.transform.localToWorldMatrix;
-
-            var y = portalCam.transform.position.y;
-
-            var matrix = transform.localToWorldMatrix * targetPortalLeft.transform.worldToLocalMatrix * playerCamNoY;
-
-            // how to apply transform instead of setting the transform. How to keep y constant?
-            portalCam.transform.SetPositionAndRotation(matrix.GetColumn(3), matrix.rotation);
-            portalCam.transform.position = new Vector3(portalCam.transform.position.x, y, portalCam.transform.position.z);
-
-            // Render camera
-            portalCam.Render();
-
-            screen.enabled = true;
-
             this.activePortal = this.targetPortalLeft;
+            this.inactivePortal = this.targetPortalRight;
         }
+
+        GenerateViewTexture(this.inactivePortal);
+        Matrix4x4 playerCamNoY = playerCam.transform.localToWorldMatrix;
+
+        var y = portalCam.transform.position.y;
+
+        var matrix = transform.localToWorldMatrix * activePortal.transform.worldToLocalMatrix * playerCamNoY;
+
+        // how to apply transform instead of setting the transform. How to keep y constant?
+        portalCam.transform.SetPositionAndRotation(matrix.GetColumn(3), matrix.rotation);
+        portalCam.transform.position = new Vector3(portalCam.transform.position.x, y, portalCam.transform.position.z);
+
+        // Render camera
+        portalCam.Render();
+
+        screen.enabled = true;
 
         //Debug.Log("Self Portal: " + this.name + " Active Portal: " + activePortal.name);
 
@@ -112,24 +99,26 @@ public class Portal : MonoBehaviour
         
         //entity.EnterPortalThreshold();
         entity.prevOffsetFromPortal = entity.transform.position - this.transform.position;
-        //knownEntities.Add(entity);
+
+        Vector3 originalForward = entity.transform.forward;
+
         if (activePortal == null)
         {
             Debug.Log("Houston, we have a problem");
         }
-        else if (GameObject.ReferenceEquals(activePortal, targetPortalLeft))
+        else if (GameObject.ReferenceEquals(activePortal, targetPortalRight))
         {
-            Debug.Log("Enter Room for: " + activePortal.name);
-            entity.transform.position = activePortal.transform.position + (-1.2f * activePortal.transform.up);
+            Debug.Log("Enter Room for: " + inactivePortal.name);
+            entity.transform.position = inactivePortal.transform.position + (-inactivePortal.transform.up);
             entity.transform.rotation = Quaternion.identity;
-            entity.transform.forward = -activePortal.transform.up;
+            entity.transform.forward = originalForward;
         }
         else
         {
-            Debug.Log("Enter Room for: " + activePortal.name);
-            entity.transform.position = activePortal.transform.position + (activePortal.transform.up);
+            Debug.Log("Enter Room for: " + inactivePortal.name);
+            entity.transform.position = inactivePortal.transform.position + (inactivePortal.transform.up);
             entity.transform.rotation = Quaternion.identity;
-            entity.transform.forward = activePortal.transform.up;
+            entity.transform.forward = originalForward;
         }
     }
 
@@ -156,13 +145,13 @@ public class Portal : MonoBehaviour
         }
     }
 
-    /*static bool PortalIsVisible(Renderer renderer, Camera cam)
+    static bool PortalIsVisible(Renderer renderer, Camera cam)
     {
         Plane[] frustum = GeometryUtility.CalculateFrustumPlanes(cam);
         return GeometryUtility.TestPlanesAABB(frustum, renderer.bounds);
 
     }
-    private void LateUpdate()
+    /*private void LateUpdate()
     {
         // For each entity, want to find whether it is on the complete opposite side of the portal.
         // Solve this by using dot product. If the angle is > 90, then yes.
