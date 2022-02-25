@@ -15,11 +15,12 @@ public class PlayerMovement : MonoBehaviour
     private float groundDistance = 0.4f;
     public LayerMask groundMask;
 
-    Vector3 velocity;
+    public Vector3 velocity;
     private bool isGrounded;
 
     // Riemann Surface Player Logic
-    public int riemannLevel;
+    public int numRotations;
+    private int floor;
     
     /// <summary>
     /// Called every tick
@@ -39,7 +40,12 @@ public class PlayerMovement : MonoBehaviour
     /// </summary>
     void AscendLevel()
     {
+        this.floor++;
+    }
 
+    void DescendLevel()
+    {
+        this.floor--;
     }
 
     // Update is called once per frame
@@ -53,6 +59,7 @@ public class PlayerMovement : MonoBehaviour
             Debug.Log("Is grounded");
             velocity.y = -2f;
         }
+
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
 
