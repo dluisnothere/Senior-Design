@@ -26,8 +26,9 @@ public class Portal : MonoBehaviour
 
     private void GenerateViewTexture(Portal targetPortal)
     {
-        if (viewTexture == null || viewTexture.width != Screen.width || viewTexture.height != Screen.height)
-        {
+        //Debug.Log("Generate View Texture");
+        //if (viewTexture == null || viewTexture.width != Screen.width || viewTexture.height != Screen.height)
+        //{
             if (viewTexture != null)
             {
                 viewTexture.Release();
@@ -39,7 +40,8 @@ public class Portal : MonoBehaviour
             portalCam.targetTexture = viewTexture;
             // send view texture to starting portal's screen
             targetPortal.screen.material.SetTexture("_MainTex", viewTexture);
-        }
+           // Debug.Log(this + " sent its texture to " + this.inactivePortal);
+        //}
     }
 
     public void Render()

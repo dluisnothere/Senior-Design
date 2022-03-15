@@ -20,11 +20,11 @@ public class MainCamera : MonoBehaviour
         }
     }
 
-    private void Update()
-    {
-        for (int i = 0; i < portals.Length; i++)
-        {
-            portals[i].Render();
-        }
-    }
+    //private void Update()
+    //{
+    //    for (int i = 0; i < portals.Length; i++)
+    //    {
+    //        portals[i].Render();
+    //    }
+    //}
 }
