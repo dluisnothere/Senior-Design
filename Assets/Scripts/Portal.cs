@@ -96,13 +96,16 @@ public class Portal : MonoBehaviour
     }
 
 
-    void EntityEnteredPortal(TraversalEntity entity)
+    void EntityEnteredPortal(GameObject entity)
     {
         
         //entity.EnterPortalThreshold();
-        entity.prevOffsetFromPortal = entity.transform.position - this.transform.position;
+        //Vector3 prevOffsetFromPortal = entity.transform.position - this.transform.position;
 
         Vector3 originalForward = entity.transform.forward;
+
+        // See if it's a riemann physics object
+        RiemannPhysics ph = entity.GetComponent<RiemannPhysics>();
 
         if (activePortal == null)
         {
@@ -111,16 +114,26 @@ public class Portal : MonoBehaviour
         else if (GameObject.ReferenceEquals(activePortal, targetPortalRight))
         {
             //Debug.Log("Enter Room for: " + inactivePortal.name);
-            entity.transform.position = inactivePortal.transform.position + (-inactivePortal.transform.up);
+            entity.transform.position = inactivePortal.transform.position + 2 * (-inactivePortal.transform.up);
             entity.transform.rotation = Quaternion.identity;
             entity.transform.forward = originalForward;
+
+            if (ph)
+            {
+                ph.ManualDescend();
+            }
+
         }
         else
         {
             //Debug.Log("Enter Room for: " + inactivePortal.name);
-            entity.transform.position = inactivePortal.transform.position + (inactivePortal.transform.up);
+            entity.transform.position = inactivePortal.transform.position + 2 * (inactivePortal.transform.up);
             entity.transform.rotation = Quaternion.identity;
             entity.transform.forward = originalForward;
+            if (ph)
+            {
+                ph.ManualAscend();
+            }
         }
     }
 
@@ -140,7 +153,7 @@ public class Portal : MonoBehaviour
         //    //entity.ExitPortalThreshold();
         //    knownEntities.Remove(entity);
         //}
-        TraversalEntity entity = other.GetComponent<TraversalEntity>();
+        GameObject entity = other.gameObject;
         if (entity)
         {
             EntityEnteredPortal(entity);

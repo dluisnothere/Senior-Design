@@ -39,11 +39,11 @@ public class RiemannPhysics : MonoBehaviour
 
         if (origin.y > 0)
         {
+            Debug.Log(origin.y);
             currentLevelK = 0;
         }
-        if (origin.y > 14)
+        if (origin.y >= 14)
         {
-            //Debug.Log("K is 1");
             currentLevelK = 1;
         } 
         if (origin.y > 26)
@@ -70,8 +70,6 @@ public class RiemannPhysics : MonoBehaviour
             Vector3 velDirection = nextPosition - this.transform.position;
 
             this.rb.velocity = velDirection;
-            //this.rb.velocity = new Vector3(0.0f, -0.5f, 0.0f);
-            //this.transform.position = nextPosition;
 
             float twopi = 2 * Mathf.PI;
 
@@ -91,6 +89,9 @@ public class RiemannPhysics : MonoBehaviour
                     theta = currentLevelK * twopi;
                 }
             }
+        } else
+        {
+            this.rb.velocity = new Vector3(0.0f,0.0f,0.0f);
         }
     }
 
@@ -99,16 +100,18 @@ public class RiemannPhysics : MonoBehaviour
         this.pickedUp = status;
     }
 
-    public void ManualAscend(int level)
+    public void ManualAscend()
     {
+        Debug.Log("Ascend");
         this.currentLevelK += 1;
-        theta += 2 * Mathf.PI;
+        //theta += 2 * Mathf.PI;
     }
 
-    public void ManualDescend(int level)
+    public void ManualDescend()
     {
+        Debug.Log("Descend");
         this.currentLevelK -= 1;
-        theta -= 2 * Mathf.PI;
+        //theta -= 2 * Mathf.PI;
     }
 
     // Solve the nth root of the specified complex number a + bi, then floors it
