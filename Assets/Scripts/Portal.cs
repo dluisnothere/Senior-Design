@@ -110,14 +110,14 @@ public class Portal : MonoBehaviour
         }
         else if (GameObject.ReferenceEquals(activePortal, targetPortalRight))
         {
-            Debug.Log("Enter Room for: " + inactivePortal.name);
+            //Debug.Log("Enter Room for: " + inactivePortal.name);
             entity.transform.position = inactivePortal.transform.position + (-inactivePortal.transform.up);
             entity.transform.rotation = Quaternion.identity;
             entity.transform.forward = originalForward;
         }
         else
         {
-            Debug.Log("Enter Room for: " + inactivePortal.name);
+            //Debug.Log("Enter Room for: " + inactivePortal.name);
             entity.transform.position = inactivePortal.transform.position + (inactivePortal.transform.up);
             entity.transform.rotation = Quaternion.identity;
             entity.transform.forward = originalForward;

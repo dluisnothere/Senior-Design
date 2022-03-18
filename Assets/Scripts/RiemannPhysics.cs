@@ -3,35 +3,53 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BallPhysics : MonoBehaviour
+public class RiemannPhysics : MonoBehaviour
 {
     /// <summary>
     /// z = a + bi where a and b dictate how big the radius of this surface is.
     /// z^1/n = will have multiple real values. 
     /// </summary>
-    public int radius;
-    public float theta;
+    public float radius;
+    public float theta; // angle around 
     public float n; // number of levels total
     public int currentLevelK;
 
-    public Vector3 origin; // origin of riemann surface
+    public GameObject originPole; // origin of riemann surface
+    public Vector3 origin;
     public Vector3 currentPos;
 
     public Rigidbody rb;
     public float speed;
 
+    public bool pickedUp;
+
     private void Start()
     {
         // dictates location of Riemann Surface's origin
-        origin = this.transform.position;
         currentPos = this.transform.position;
-        currentLevelK = 0;
-        radius = 10;
+        origin = new Vector3(this.originPole.transform.position.x, currentPos.y, this.originPole.transform.position.z);
+        radius = Vector3.Magnitude(currentPos - origin);
+        //Debug.Log("radius: " + radius);
         theta = 0;
         n = 3;
-        speed = 2;
+
+        pickedUp = false;
 
         rb = this.gameObject.GetComponent<Rigidbody>();
+
+        if (origin.y > 0)
+        {
+            currentLevelK = 0;
+        }
+        if (origin.y > 14)
+        {
+            //Debug.Log("K is 1");
+            currentLevelK = 1;
+        } 
+        if (origin.y > 26)
+        {
+            currentLevelK = 2;
+        }
     }
 
     private void Update()
@@ -40,26 +58,45 @@ public class BallPhysics : MonoBehaviour
         //moves the ball in the direction based on solve.
         // Increase angle incrementally but wrap back to 0, when ManualAscend is called, increase theta by 360.
         // Using transform.position means rigidbody doesn't really work. Need to move according to rigidbody. 
-        
-        theta += 0.01f;
 
-        float x = radius * (float)Math.Cos(theta);
-        float z = radius * (float)Math.Sin(theta);
-        float y = (float)Solve(this.currentLevelK);
-
-        Vector3 nextPosition = new Vector3(x, y, z) + origin;
-
-        Vector3 velDirection = nextPosition - this.transform.position;
-
-        this.rb.velocity = speed * velDirection;
-
-        float twopi = 2*Mathf.PI;
-
-        if (theta > currentLevelK * twopi + twopi)
+        if (!pickedUp)
         {
-            theta = currentLevelK * twopi;
+            float x = radius * (float)Math.Cos(theta);
+            float z = radius * (float)Math.Sin(theta);
+            float y = (float)Solve(this.currentLevelK);
+
+            Vector3 nextPosition = new Vector3(x, y, z) + origin;
+
+            Vector3 velDirection = nextPosition - this.transform.position;
+
+            this.rb.velocity = velDirection;
+            //this.rb.velocity = new Vector3(0.0f, -0.5f, 0.0f);
+            //this.transform.position = nextPosition;
+
+            float twopi = 2 * Mathf.PI;
+
+            if (currentLevelK % 2 == 0)
+            {
+                theta += 0.001f;
+
+                if (theta > currentLevelK * twopi + twopi)
+                {
+                    theta = currentLevelK * twopi;
+                }
+            } else
+            {
+                theta -= 0.001f;
+                if (theta < currentLevelK * twopi - twopi)
+                {
+                    theta = currentLevelK * twopi;
+                }
+            }
         }
-        // Debug.Log("theta: " + theta);
+    }
+
+    public void SetPickedUp(bool status)
+    {
+        this.pickedUp = status;
     }
 
     public void ManualAscend(int level)

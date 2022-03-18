@@ -9,8 +9,13 @@ public class PickUp : MonoBehaviour
     void OnMouseDown()
     {
         Rigidbody rb = GetComponent<Rigidbody>();
+        RiemannPhysics ph = GetComponent<RiemannPhysics>();
+
         rb.useGravity = false;
         rb.freezeRotation = true;
+        //rb.velocity = new Vector3(0, 0, 0);
+
+        ph.SetPickedUp(true);
 
         this.transform.position = destination.position;
         this.transform.parent = GameObject.Find("Destination").transform;
@@ -22,7 +27,11 @@ public class PickUp : MonoBehaviour
         this.transform.parent = null;
 
         Rigidbody rb = GetComponent<Rigidbody>();
+        RiemannPhysics ph = GetComponent<RiemannPhysics>();
+
         rb.useGravity = true;
         rb.freezeRotation = false;
+
+        ph.SetPickedUp(false);
     }
 }
