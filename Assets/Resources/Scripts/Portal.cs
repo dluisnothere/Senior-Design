@@ -120,7 +120,7 @@ public class Portal : MonoBehaviour
 
             if (ph)
             {
-                ph.ManualDescend();
+                //ph.ManualDescend();
             }
 
         }
@@ -132,7 +132,7 @@ public class Portal : MonoBehaviour
             entity.transform.forward = originalForward;
             if (ph)
             {
-                ph.ManualAscend();
+                //ph.ManualAscend();
             }
         }
     }

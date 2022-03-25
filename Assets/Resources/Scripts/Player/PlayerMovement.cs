@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    // First Person Player Logic
+    // BASIC First Person Player Logic
     // TODO: FIX VELOCITY ISSUE
     public CharacterController controller;
 
@@ -20,9 +20,22 @@ public class PlayerMovement : MonoBehaviour
     public Vector3 velocity;
     private bool isGrounded;
 
+    // PHYSICS MODE
+    public bool riemannPhysicsMode;
+    public bool escherPhysicsMode;
+
+    // ESCHER PLAYER LOGIC
     // Ray casting for changing local up
     Ray RayOrigin;
     RaycastHit HitInfo;
+
+    private void Start()
+    {
+        this.GetComponent<RiemannPhysics>().enabled = true;
+
+        // TODO: PUT THIS IN A DIFFERENT CLASS AND FIX
+        this.escherPhysicsMode = false;
+    }
 
 
     // Update is called once per frame
