@@ -11,6 +11,8 @@ public class Portal : MonoBehaviour
 
     public MeshRenderer screen;
     Camera playerCam;
+    GameObject cameraHolder;
+    Transform camOrientation;
     Camera portalCam;
     RenderTexture viewTexture;
 
@@ -19,35 +21,40 @@ public class Portal : MonoBehaviour
     private void Awake()
     {
         playerCam = Camera.main;
+        cameraHolder = GameObject.Find("CameraHolder");
+        camOrientation = GameObject.Find("NewFPSChar").transform;
         portalCam = GetComponentInChildren<Camera>();
-        portalCam.enabled = false;
-        //knownEntities = new List<TraversalEntity>();
+        portalCam.enabled = true;
     }
 
     private void GenerateViewTexture(Portal targetPortal)
     {
-        //Debug.Log("Generate View Texture");
-        //if (viewTexture == null || viewTexture.width != Screen.width || viewTexture.height != Screen.height)
-        //{
-            if (viewTexture != null)
-            {
-                viewTexture.Release();
-            }
+        // TODO: debugging
+        screen.enabled = false;
+        if (this.viewTexture != null)
+        {
+            this.viewTexture.Release();
+        }
 
-            // Render view from the portal camera to view texture
-            viewTexture = new RenderTexture(Screen.width, Screen.height, 0);
+        // Render view from the portal camera to view texture
+        this.viewTexture = new RenderTexture(Screen.width, Screen.height, 0);
 
-            portalCam.targetTexture = viewTexture;
-            // send view texture to starting portal's screen
-            targetPortal.screen.material.SetTexture("_MainTex", viewTexture);
-           // Debug.Log(this + " sent its texture to " + this.inactivePortal);
-        //}
+        this.portalCam.targetTexture = viewTexture;
+        // send view texture to starting portal's screen
+        Debug.Log("Setting " + targetPortal.gameObject.name + " view text to " + this.gameObject.name);
+        Debug.Log("Portal Cam Located at: " + this.portalCam.transform.position);
+        targetPortal.screen.material.SetTexture("_MainTex", viewTexture);
+        //targetPortal.activePortal = this;
+        this.portalCam.Render();
+
+        screen.enabled = true;
+
     }
 
     public void Render()
     {
 
-        screen.enabled = false;
+        //screen.enabled = false;
 
         Vector2 xzPlayer = new Vector2(playerCam.transform.position.x, playerCam.transform.position.z);
         Vector2 xzPortal = new Vector2(this.transform.position.x, this.transform.position.z);
@@ -60,21 +67,22 @@ public class Portal : MonoBehaviour
         float dotProd = Vector2.Dot(portalUp, playerToPortal);
         //Debug.Log("dotProd: " + dotProd);
 
-        
+
         if (dotProd < 0)
         {
             this.activePortal = this.targetPortalRight;
             this.inactivePortal = this.targetPortalLeft;
-
-        } else if (dotProd > 0)
+        }
+        else if (dotProd > 0)
         {
             this.activePortal = this.targetPortalLeft;
             this.inactivePortal = this.targetPortalRight;
         }
 
-        GenerateViewTexture(this.inactivePortal);
-        Matrix4x4 playerCamNoY = playerCam.transform.localToWorldMatrix;
+        //GenerateViewTexture(this.inactivePortal);
+        this.inactivePortal.GenerateViewTexture(this);
 
+        Matrix4x4 playerCamNoY = playerCam.transform.localToWorldMatrix;
         var y = portalCam.transform.position.y;
 
         var matrix = transform.localToWorldMatrix * activePortal.transform.worldToLocalMatrix * playerCamNoY;
@@ -84,11 +92,7 @@ public class Portal : MonoBehaviour
         portalCam.transform.position = new Vector3(portalCam.transform.position.x, y, portalCam.transform.position.z);
 
         // Render camera
-        portalCam.Render();
-
-        screen.enabled = true;
-
-        //Debug.Log("Self Portal: " + this.name + " Active Portal: " + activePortal.name);
+        //screen.enabled = true;
 
         // If viewing from one side, generate one target portal texture. 
 
@@ -98,9 +102,7 @@ public class Portal : MonoBehaviour
 
     void EntityEnteredPortal(GameObject entity)
     {
-        
-        //entity.EnterPortalThreshold();
-        //Vector3 prevOffsetFromPortal = entity.transform.position - this.transform.position;
+        //Debug.Log(entity.name);
 
         Vector3 originalForward = entity.transform.forward;
 
@@ -113,34 +115,28 @@ public class Portal : MonoBehaviour
         }
         else if (GameObject.ReferenceEquals(activePortal, targetPortalRight))
         {
-            //Debug.Log("Enter Room for: " + inactivePortal.name);
-            entity.transform.position = inactivePortal.transform.position + 2 * (-inactivePortal.transform.up);
+            entity.transform.position = activePortal.transform.position + 1.5f * (-activePortal.transform.up);
             entity.transform.rotation = Quaternion.identity;
+            // TODO: cannot set entity.transform.forward to original forward. 
             entity.transform.forward = originalForward;
-
-            if (ph)
-            {
-                //ph.ManualDescend();
-            }
 
         }
         else
         {
-            //Debug.Log("Enter Room for: " + inactivePortal.name);
-            entity.transform.position = inactivePortal.transform.position + 2 * (inactivePortal.transform.up);
+            entity.transform.position = activePortal.transform.position + 1.5f * (activePortal.transform.up);
             entity.transform.rotation = Quaternion.identity;
             entity.transform.forward = originalForward;
-            if (ph)
-            {
-                //ph.ManualAscend();
-            }
         }
     }
 
     // trigger collider
     private void OnTriggerEnter(Collider other)
     {
-        
+        GameObject entity = other.gameObject;
+        if (entity)
+        {
+            EntityEnteredPortal(entity);
+        }
     }
 
     // remove entity from knownEntities
@@ -153,19 +149,19 @@ public class Portal : MonoBehaviour
         //    //entity.ExitPortalThreshold();
         //    knownEntities.Remove(entity);
         //}
-        GameObject entity = other.gameObject;
-        if (entity)
-        {
-            EntityEnteredPortal(entity);
-        }
+        //GameObject entity = other.gameObject;
+        //if (entity)
+        //{
+        //    EntityEnteredPortal(entity);
+        //}
     }
 
-    static bool PortalIsVisible(Renderer renderer, Camera cam)
-    {
-        Plane[] frustum = GeometryUtility.CalculateFrustumPlanes(cam);
-        return GeometryUtility.TestPlanesAABB(frustum, renderer.bounds);
+    //static bool PortalIsVisible(Renderer renderer, Camera cam)
+    //{
+    //    Plane[] frustum = GeometryUtility.CalculateFrustumPlanes(cam);
+    //    return GeometryUtility.TestPlanesAABB(frustum, renderer.bounds);
 
-    }
+    //}
     /*private void LateUpdate()
     {
         // For each entity, want to find whether it is on the complete opposite side of the portal.

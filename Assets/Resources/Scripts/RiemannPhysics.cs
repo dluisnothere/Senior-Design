@@ -163,7 +163,7 @@ public class RiemannPhysics : MonoBehaviour
             this.currentLevelK = calcK;
             this.globalObj.EnableObjects(this.currentLevelK);
         }
-        Debug.Log("currentLevelK: " + this.currentLevelK);
+        //Debug.Log("currentLevelK: " + this.currentLevelK);
         this.prevPosition = this.gameObject.transform.position;
     }
     public double Solve(int k)

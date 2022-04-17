@@ -6,7 +6,7 @@ public class GlobalScript : MonoBehaviour
 {
     public void DisableObjects(int levelK)
     {
-        Debug.Log("Disable Objects on Level" + levelK);
+        //Debug.Log("Disable Objects on Level" + levelK);
         GameObject[] objectsOnSurfaceK = GameObject.FindGameObjectsWithTag("Level"+levelK);
         for (int i = 0; i < objectsOnSurfaceK.Length; i++) {
             GameObject obj = objectsOnSurfaceK[i];
@@ -19,11 +19,11 @@ public class GlobalScript : MonoBehaviour
 
     public void EnableObjects(int levelK)
     {
-        Debug.Log("Enable Objects on Level" + levelK);
+        //Debug.Log("Enable Objects on Level" + levelK);
         GameObject[] objectsOnSurfaceK = GameObject.FindGameObjectsWithTag("Level" + levelK);
         for (int i = 0; i < objectsOnSurfaceK.Length; i++)
         {
-            Debug.Log("enabling object...");
+            //Debug.Log("enabling object...");
             GameObject obj = objectsOnSurfaceK[i];
             MeshCollider collider = obj.GetComponent<MeshCollider>();
             MeshRenderer renderer = obj.GetComponent<MeshRenderer>();

@@ -16,6 +16,7 @@ public class MainCamera : MonoBehaviour
     {
         for (int i = 0; i < portals.Length; i++)
         {
+            //Debug.Log(portals[i].name);
             portals[i].Render();
         }
     }
