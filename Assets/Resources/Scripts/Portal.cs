@@ -45,8 +45,13 @@ public class Portal : MonoBehaviour
         Debug.Log("Portal Cam Located at: " + this.portalCam.transform.position);
         targetPortal.screen.material.SetTexture("_MainTex", viewTexture);
         //targetPortal.activePortal = this;
-        this.portalCam.Render();
-
+        if (this.portalCam.targetTexture == null)
+        {
+            Debug.Log(this.gameObject.name + " targetTexture is null for sending to targetPortal: " + targetPortal.gameObject.name);
+        } else
+        {
+            this.portalCam.Render();
+        }
         screen.enabled = true;
 
     }
@@ -68,19 +73,19 @@ public class Portal : MonoBehaviour
         //Debug.Log("dotProd: " + dotProd);
 
 
-        if (dotProd < 0)
+        if (dotProd > 0)
         {
             this.activePortal = this.targetPortalRight;
             this.inactivePortal = this.targetPortalLeft;
         }
-        else if (dotProd > 0)
+        else if (dotProd < 0)
         {
             this.activePortal = this.targetPortalLeft;
             this.inactivePortal = this.targetPortalRight;
         }
 
         //GenerateViewTexture(this.inactivePortal);
-        this.inactivePortal.GenerateViewTexture(this);
+        this.activePortal.GenerateViewTexture(this);
 
         Matrix4x4 playerCamNoY = playerCam.transform.localToWorldMatrix;
         var y = portalCam.transform.position.y;
@@ -115,17 +120,28 @@ public class Portal : MonoBehaviour
         }
         else if (GameObject.ReferenceEquals(activePortal, targetPortalRight))
         {
+            var m = activePortal.transform.localToWorldMatrix * this.transform.worldToLocalMatrix * entity.transform.localToWorldMatrix;
+
             entity.transform.position = activePortal.transform.position + 1.5f * (-activePortal.transform.up);
-            entity.transform.rotation = Quaternion.identity;
-            // TODO: cannot set entity.transform.forward to original forward. 
-            entity.transform.forward = originalForward;
+
+            float currX = this.transform.rotation.eulerAngles.x;
+            float activePortalY = activePortal.transform.rotation.eulerAngles.y;
+            float currZ = this.transform.rotation.eulerAngles.z;
+
+            entity.transform.rotation = Quaternion.Euler(currX, -activePortalY, currZ);
+            //entity.transform.position = m.GetColumn(3) + Vector4(1.5f * (-activePortal.transform.up), 0.0f);
+            //entity.transform.rotation = m.rotation;
 
         }
         else
         {
             entity.transform.position = activePortal.transform.position + 1.5f * (activePortal.transform.up);
-            entity.transform.rotation = Quaternion.identity;
-            entity.transform.forward = originalForward;
+            float currX = this.transform.rotation.eulerAngles.x;
+            float activePortalY = activePortal.transform.rotation.eulerAngles.y;
+            float currZ = this.transform.rotation.eulerAngles.z;
+
+            entity.transform.rotation = Quaternion.Euler(currX, activePortalY, currZ);
+            //entity.transform.forward = activePortal.transform.up;
         }
     }
 
