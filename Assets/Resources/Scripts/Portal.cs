@@ -30,21 +30,36 @@ public class Portal : MonoBehaviour
     private void GenerateViewTexture(Portal targetPortal)
     {
         // TODO: debugging
-        screen.enabled = false;
+        
+        //if (this.viewTexture != null)
+        //{
+        //    // manually release texture memory.
+        //    this.viewTexture.Release();
+        //}
+
         if (this.viewTexture != null)
         {
-            this.viewTexture.Release();
+            targetPortal.screen.material.SetTexture("_MainTex", viewTexture);
+            return;
         }
+
+        screen.enabled = false;
 
         // Render view from the portal camera to view texture
         this.viewTexture = new RenderTexture(Screen.width, Screen.height, 0);
 
         this.portalCam.targetTexture = viewTexture;
-        // send view texture to starting portal's screen
-        Debug.Log("Setting " + targetPortal.gameObject.name + " view text to " + this.gameObject.name);
-        Debug.Log("Portal Cam Located at: " + this.portalCam.transform.position);
+
+        Matrix4x4 playerCamNoY = playerCam.transform.localToWorldMatrix;
+        var y = portalCam.transform.position.y;
+
+        var matrix = this.transform.localToWorldMatrix * targetPortal.transform.worldToLocalMatrix * playerCamNoY;
+
+        portalCam.transform.SetPositionAndRotation(matrix.GetColumn(3), matrix.rotation);
+        portalCam.transform.position = new Vector3(portalCam.transform.position.x, y, portalCam.transform.position.z);
+
         targetPortal.screen.material.SetTexture("_MainTex", viewTexture);
-        //targetPortal.activePortal = this;
+
         if (this.portalCam.targetTexture == null)
         {
             Debug.Log(this.gameObject.name + " targetTexture is null for sending to targetPortal: " + targetPortal.gameObject.name);
@@ -53,7 +68,31 @@ public class Portal : MonoBehaviour
             this.portalCam.Render();
         }
         screen.enabled = true;
+    }
 
+    public void PreRender(Portal targetPortal)
+    {
+        this.viewTexture = null;
+    }
+
+    public void PostRender(Portal targetPortal)
+    {
+        if (this.viewTexture != null)
+        {
+            // manually release texture memory.
+            this.viewTexture.Release();
+            this.viewTexture = null;
+        }
+    }
+
+    public void PreRender()
+    {
+        this.activePortal?.PreRender(this);
+    }
+
+    public void PostRender()
+    {
+        this.activePortal?.PostRender(this);
     }
 
     public void Render()
@@ -78,24 +117,18 @@ public class Portal : MonoBehaviour
             this.activePortal = this.targetPortalRight;
             this.inactivePortal = this.targetPortalLeft;
         }
-        else if (dotProd < 0)
+        else if (dotProd <= 0)
         {
             this.activePortal = this.targetPortalLeft;
             this.inactivePortal = this.targetPortalRight;
         }
 
-        //GenerateViewTexture(this.inactivePortal);
         this.activePortal.GenerateViewTexture(this);
 
-        Matrix4x4 playerCamNoY = playerCam.transform.localToWorldMatrix;
-        var y = portalCam.transform.position.y;
-
-        var matrix = transform.localToWorldMatrix * activePortal.transform.worldToLocalMatrix * playerCamNoY;
-
-        // how to apply transform instead of setting the transform. How to keep y constant?
-        portalCam.transform.SetPositionAndRotation(matrix.GetColumn(3), matrix.rotation);
-        portalCam.transform.position = new Vector3(portalCam.transform.position.x, y, portalCam.transform.position.z);
-
+        if (this.gameObject.name == "5PortalL")
+        {
+            //Debug.Log(dotProd);
+        }
         // Render camera
         //screen.enabled = true;
 
@@ -154,71 +187,4 @@ public class Portal : MonoBehaviour
             EntityEnteredPortal(entity);
         }
     }
-
-    // remove entity from knownEntities
-    private void OnTriggerExit(Collider other)
-    {
-        //Debug.Log("Left portal " + this.gameObject.name);
-        //TraversalEntity entity = other.GetComponent<TraversalEntity>();
-        //if (entity && knownEntities.Contains(entity))
-        //{
-        //    //entity.ExitPortalThreshold();
-        //    knownEntities.Remove(entity);
-        //}
-        //GameObject entity = other.gameObject;
-        //if (entity)
-        //{
-        //    EntityEnteredPortal(entity);
-        //}
-    }
-
-    //static bool PortalIsVisible(Renderer renderer, Camera cam)
-    //{
-    //    Plane[] frustum = GeometryUtility.CalculateFrustumPlanes(cam);
-    //    return GeometryUtility.TestPlanesAABB(frustum, renderer.bounds);
-
-    //}
-    /*private void LateUpdate()
-    {
-        // For each entity, want to find whether it is on the complete opposite side of the portal.
-        // Solve this by using dot product. If the angle is > 90, then yes.
-        for (int i = 0; i < knownEntities.Count; i++)
-        {
-            TraversalEntity entity = knownEntities[i];
-            Vector3 vecFromEntity = this.transform.position - entity.transform.position;
-            Vector3 vecFromEntityPrev = this.transform.position - entity.prevOffsetFromPortal;
-
-            int currPortalSide = System.Math.Sign(Vector3.Dot(vecFromEntity, transform.forward));
-            int prevPortalSide = System.Math.Sign(Vector3.Dot(vecFromEntityPrev, transform.forward));
-
-            //Debug.Log("curr Portal side: " + currPortalSide);
-            //Debug.Log("prev Portal side: " + prevPortalSide);
-
-            //CharacterController control = entity.gameObject.GetComponent<CharacterController>();
-            //Debug.Log("velocity: " + control.velocity);
-         
-            if ((control.velocity.z > 0 && this.isLeftPortal) || (control.velocity.z < 0 && !this.isLeftPortal))
-            {
-                Debug.Log("want to teleport");
-                var matrix = targetPortal.transform.localToWorldMatrix * this.transform.worldToLocalMatrix * entity.transform.localToWorldMatrix;
-                entity.Teleport(transform, targetPortal.transform, matrix.GetColumn(3), matrix.rotation);
-                //Debug.Log("From Portal" + this.gameObject.name);
-                //Debug.Log("new position" + entity.transform.position);
-
-                // Cannot rely on OnTriggerEnter/Exit to be called next frame because FixedUpdate runs separately.
-                // The portal will teleport you multiple times.
-                targetPortal.EntityEnteredPortal(entity);
-
-                // Remove immediately after teleporting it.
-                knownEntities.RemoveAt(i);
-                i--;
-            } 
-            else
-            {
-                entity.prevOffsetFromPortal = entity.transform.position - this.transform.position;
-                //Debug.Log("enemy prev offset SEt");
-                //Debug.Log(entity.prevOffsetFromPortal);
-            }
-        }
-    }*/
 }
