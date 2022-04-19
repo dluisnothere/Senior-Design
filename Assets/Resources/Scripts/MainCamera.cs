@@ -21,7 +21,6 @@ public class MainCamera : MonoBehaviour
 
         for (int i = 0; i < portals.Length; i++)
         {
-            //Debug.Log(portals[i].name);
             portals[i].Render();
         }
     }
@@ -34,11 +33,4 @@ public class MainCamera : MonoBehaviour
         }
     }
 
-    //private void Update()
-    //{
-    //    for (int i = 0; i < portals.Length; i++)
-    //    {
-    //        portals[i].Render();
-    //    }
-    //}
 }

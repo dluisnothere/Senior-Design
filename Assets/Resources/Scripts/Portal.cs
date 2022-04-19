@@ -25,18 +25,12 @@ public class Portal : MonoBehaviour
         camOrientation = GameObject.Find("NewFPSChar").transform;
         portalCam = GetComponentInChildren<Camera>();
         portalCam.enabled = true;
+
+
     }
 
     private void GenerateViewTexture(Portal targetPortal)
     {
-        // TODO: debugging
-        
-        //if (this.viewTexture != null)
-        //{
-        //    // manually release texture memory.
-        //    this.viewTexture.Release();
-        //}
-
         if (this.viewTexture != null)
         {
             targetPortal.screen.material.SetTexture("_MainTex", viewTexture);
@@ -161,20 +155,22 @@ public class Portal : MonoBehaviour
             float activePortalY = activePortal.transform.rotation.eulerAngles.y;
             float currZ = this.transform.rotation.eulerAngles.z;
 
-            entity.transform.rotation = Quaternion.Euler(currX, -activePortalY, currZ);
+            //entity.transform.rotation = Quaternion.Euler(currX, -activePortalY, currZ);
             //entity.transform.position = m.GetColumn(3) + Vector4(1.5f * (-activePortal.transform.up), 0.0f);
-            //entity.transform.rotation = m.rotation;
-
+            entity.transform.rotation = m.rotation;
         }
         else
         {
+            var m = activePortal.transform.localToWorldMatrix * this.transform.worldToLocalMatrix * entity.transform.localToWorldMatrix;
+
             entity.transform.position = activePortal.transform.position + 1.5f * (activePortal.transform.up);
             float currX = this.transform.rotation.eulerAngles.x;
             float activePortalY = activePortal.transform.rotation.eulerAngles.y;
             float currZ = this.transform.rotation.eulerAngles.z;
 
-            entity.transform.rotation = Quaternion.Euler(currX, activePortalY, currZ);
+            //entity.transform.rotation = Quaternion.Euler(currX, activePortalY, currZ);
             //entity.transform.forward = activePortal.transform.up;
+            entity.transform.rotation = m.rotation;
         }
     }
 
