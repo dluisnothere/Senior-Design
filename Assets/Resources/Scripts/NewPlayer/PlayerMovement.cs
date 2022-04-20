@@ -122,9 +122,28 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    private bool dontMove;
+
+    public void SitTight()
+    {
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        dontMove = true;
+    }
+
+    public void MoveAgain()
+    {
+        dontMove = false;
+    }
+
     private void MovePlayer()
     {
+        if (dontMove)
+        {
+            return;
+        }
         // calculate moveemetn direction
+        Debug.Log("this forward: " + this.orientation.forward);
         this.moveDirection = this.orientation.forward * this.verticalInput + this.orientation.right * this.horizontalInput;
         //Debug.Log("ORIENTATION FORWARD");
         //Debug.Log(orientation.forward);

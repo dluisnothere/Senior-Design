@@ -8,6 +8,9 @@ public class Portal : MonoBehaviour
     public Portal targetPortalRight;
     public Portal activePortal;
     public Portal inactivePortal;
+    private Portal enteredPortal;
+
+    bool isRightPort;
 
     public MeshRenderer screen;
     Camera playerCam;
@@ -25,8 +28,10 @@ public class Portal : MonoBehaviour
         camOrientation = GameObject.Find("NewFPSChar").transform;
         portalCam = GetComponentInChildren<Camera>();
         portalCam.enabled = true;
-
-
+        if (this.gameObject.name == "2PortalL")
+        {
+            Debug.Log(this.gameObject.transform.up);
+        }
     }
 
     private void GenerateViewTexture(Portal targetPortal)
@@ -110,11 +115,13 @@ public class Portal : MonoBehaviour
         {
             this.activePortal = this.targetPortalRight;
             this.inactivePortal = this.targetPortalLeft;
+            this.isRightPort = true;
         }
         else if (dotProd <= 0)
         {
             this.activePortal = this.targetPortalLeft;
             this.inactivePortal = this.targetPortalRight;
+            this.isRightPort = false;
         }
 
         this.activePortal.GenerateViewTexture(this);
@@ -134,44 +141,82 @@ public class Portal : MonoBehaviour
 
     void EntityEnteredPortal(GameObject entity)
     {
-        //Debug.Log(entity.name);
-
-        Vector3 originalForward = entity.transform.forward;
-
-        // See if it's a riemann physics object
-        RiemannPhysics ph = entity.GetComponent<RiemannPhysics>();
-
         if (activePortal == null)
         {
             Debug.Log("Houston, we have a problem");
         }
-        else if (GameObject.ReferenceEquals(activePortal, targetPortalRight))
+        else if (isRightPort)
         {
-            var m = activePortal.transform.localToWorldMatrix * this.transform.worldToLocalMatrix * entity.transform.localToWorldMatrix;
+            PlayerMovement p = entity.GetComponent<PlayerMovement>();
+            p.SitTight();
 
-            entity.transform.position = activePortal.transform.position + 1.5f * (-activePortal.transform.up);
+            MouseLook look = GameObject.Find("PlayerCam").GetComponent<MouseLook>();
 
-            float currX = this.transform.rotation.eulerAngles.x;
-            float activePortalY = activePortal.transform.rotation.eulerAngles.y;
-            float currZ = this.transform.rotation.eulerAngles.z;
+            // New stuff.
+            float angChange = Vector3.SignedAngle(Vector3.forward, -this.targetPortalRight.transform.up, Vector3.up);
+            Debug.Log("angle change: " + angChange);
 
-            //entity.transform.rotation = Quaternion.Euler(currX, -activePortalY, currZ);
-            //entity.transform.position = m.GetColumn(3) + Vector4(1.5f * (-activePortal.transform.up), 0.0f);
-            entity.transform.rotation = m.rotation;
+            float enterAngle = 180 - Vector3.SignedAngle(this.transform.up, look.orientation.forward, Vector3.up);
+            Debug.Log("enter angle diff: " + enterAngle);
+            angChange -= enterAngle;
+            Debug.Log("angle change new: " + angChange);
+
+            Debug.Log("teleportRight:" + isRightPort);
+
+            if (p)
+            {
+                look.RotateTowards(angChange);
+                look.Update();
+                entity.transform.position = activePortal.transform.position + 5.5f * look.orientation.forward;
+
+                var groundMask = LayerMask.GetMask("Ground");
+                if (Physics.Raycast(entity.transform.position, Vector3.down, out RaycastHit myHit, 100f, groundMask))
+                {
+                    entity.transform.position = new Vector3(entity.transform.position.x, myHit.point.y + 0.5f,
+                        entity.transform.position.z);
+                }
+
+                p.MoveAgain();
+            }
         }
         else
         {
-            var m = activePortal.transform.localToWorldMatrix * this.transform.worldToLocalMatrix * entity.transform.localToWorldMatrix;
+            PlayerMovement p = entity.GetComponent<PlayerMovement>();
+            p.SitTight();
 
-            entity.transform.position = activePortal.transform.position + 1.5f * (activePortal.transform.up);
-            float currX = this.transform.rotation.eulerAngles.x;
-            float activePortalY = activePortal.transform.rotation.eulerAngles.y;
-            float currZ = this.transform.rotation.eulerAngles.z;
+            MouseLook look = GameObject.Find("PlayerCam").GetComponent<MouseLook>();
 
-            //entity.transform.rotation = Quaternion.Euler(currX, activePortalY, currZ);
-            //entity.transform.forward = activePortal.transform.up;
-            entity.transform.rotation = m.rotation;
+            // New stuff.
+            float angChange = Vector3.SignedAngle(Vector3.forward, this.targetPortalLeft.transform.up, Vector3.up);
+            Debug.Log("angle change: " + angChange);
+
+            float enterAngle = Vector3.SignedAngle(this.transform.up, look.orientation.forward, Vector3.up);
+            Debug.Log("enter angle diff: " + enterAngle);
+            angChange -= enterAngle;
+            Debug.Log("angle change new: " + angChange);
+
+            if (p)
+            {
+                look.RotateTowards(angChange);
+                look.Update();
+                entity.transform.position = activePortal.transform.position + 5.5f * look.orientation.forward;
+
+                var groundMask = LayerMask.GetMask("Ground");
+                if (Physics.Raycast(entity.transform.position, Vector3.down, out RaycastHit myHit, 100f, groundMask))
+                {
+                    entity.transform.position = new Vector3(entity.transform.position.x, myHit.point.y + 0.5f,
+                        entity.transform.position.z);
+                }
+
+                p.MoveAgain();
+            }
         }
+    }
+
+    private void OnDrawGizmos()
+    {
+        var pos = this.transform.position;
+        Gizmos.DrawLine(pos, pos + this.transform.up * 5);
     }
 
     // trigger collider
@@ -180,6 +225,8 @@ public class Portal : MonoBehaviour
         GameObject entity = other.gameObject;
         if (entity)
         {
+            this.enteredPortal = this.activePortal;
+            Debug.Log(this.gameObject.name + " isRight: " + this.isRightPort);
             EntityEnteredPortal(entity);
         }
     }

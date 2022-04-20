@@ -27,8 +27,15 @@ public class MouseLook : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
     }
 
+    // Only called externally
+    public void RotateTowards(float val)
+    {
+        Debug.Log("Rotate Towards");
+        upRotation = val;
+    }
+
     // Update is called once per frame
-    void Update()
+    public void Update()
     {
         // In Unity Project settings Input, it's named Mouse X.
         // Rotation should be independent of framerate (update)
@@ -38,6 +45,8 @@ public class MouseLook : MonoBehaviour
         upRotation += mouseX;
         rightRotation -= mouseY;
 
+        Debug.Log(upRotation % 360);
+       
         //yRotation = mouseX;
         //xRotation = mouseY;
 
@@ -53,6 +62,7 @@ public class MouseLook : MonoBehaviour
 
             transform.localRotation = Quaternion.Euler(rightRotation, upRotation, 0);
             this.orientation.rotation = Quaternion.Euler(0, upRotation, 0);
+            //this.orientation.Rotate(this.transform.up, upRotation);
         }
         else if (cameraUp == pz || cameraUp == nz)
         {
