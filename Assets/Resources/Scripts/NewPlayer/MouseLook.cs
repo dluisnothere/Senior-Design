@@ -30,8 +30,13 @@ public class MouseLook : MonoBehaviour
     // Only called externally
     public void RotateTowards(float val)
     {
-        Debug.Log("Rotate Towards");
+        //Debug.Log("Rotate Towards");
         upRotation = val;
+    }
+
+    private bool vectorEquals(Vector3 veca, Vector3 vecb)
+    {
+        return (Vector3.Distance(veca, vecb) < 0.1f);
     }
 
     // Update is called once per frame
@@ -42,32 +47,12 @@ public class MouseLook : MonoBehaviour
         float mouseX = Input.GetAxis("Mouse X") * this.mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * this.mouseSensitivity * Time.deltaTime;
 
-        upRotation += mouseX;
+        upRotation = mouseX;
         rightRotation -= mouseY;
-
-        Debug.Log(upRotation % 360);
-       
-        //yRotation = mouseX;
-        //xRotation = mouseY;
 
         rightRotation = Mathf.Clamp(rightRotation, -90f, 90f);
 
-        if (cameraUp == px || cameraUp == nx)
-        {
-            transform.localRotation = Quaternion.Euler(upRotation, rightRotation, 0);
-            this.orientation.rotation = Quaternion.Euler(upRotation, 0, 0);
-        }
-        else if (cameraUp == py || cameraUp == ny)
-        {
-
-            transform.localRotation = Quaternion.Euler(rightRotation, upRotation, 0);
-            this.orientation.rotation = Quaternion.Euler(0, upRotation, 0);
-            //this.orientation.Rotate(this.transform.up, upRotation);
-        }
-        else if (cameraUp == pz || cameraUp == nz)
-        {
-            transform.localRotation = Quaternion.Euler(rightRotation, 0, upRotation);
-            this.orientation.rotation = Quaternion.Euler(0, 0, upRotation);
-        }
+        transform.localRotation = this.orientation.rotation * Quaternion.Euler(rightRotation, upRotation, 0);
+        this.orientation.rotation *= Quaternion.Euler(0f, upRotation, 0f);
     }
 }

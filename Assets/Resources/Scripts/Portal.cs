@@ -28,10 +28,7 @@ public class Portal : MonoBehaviour
         camOrientation = GameObject.Find("NewFPSChar").transform;
         portalCam = GetComponentInChildren<Camera>();
         portalCam.enabled = true;
-        if (this.gameObject.name == "2PortalL")
-        {
-            Debug.Log(this.gameObject.transform.up);
-        }
+        
     }
 
     private void GenerateViewTexture(Portal targetPortal)
@@ -154,20 +151,20 @@ public class Portal : MonoBehaviour
 
             // New stuff.
             float angChange = Vector3.SignedAngle(Vector3.forward, -this.targetPortalRight.transform.up, Vector3.up);
-            Debug.Log("angle change: " + angChange);
+            //Debug.Log("angle change: " + angChange);
 
             float enterAngle = 180 - Vector3.SignedAngle(this.transform.up, look.orientation.forward, Vector3.up);
-            Debug.Log("enter angle diff: " + enterAngle);
+            //Debug.Log("enter angle diff: " + enterAngle);
             angChange -= enterAngle;
-            Debug.Log("angle change new: " + angChange);
+            //Debug.Log("angle change new: " + angChange);
 
-            Debug.Log("teleportRight:" + isRightPort);
+            //Debug.Log("teleportRight:" + isRightPort);
 
             if (p)
             {
                 look.RotateTowards(angChange);
                 look.Update();
-                entity.transform.position = activePortal.transform.position + 5.5f * look.orientation.forward;
+                entity.transform.position = activePortal.transform.position + 1.5f * look.orientation.forward;
 
                 var groundMask = LayerMask.GetMask("Ground");
                 if (Physics.Raycast(entity.transform.position, Vector3.down, out RaycastHit myHit, 100f, groundMask))
@@ -188,18 +185,18 @@ public class Portal : MonoBehaviour
 
             // New stuff.
             float angChange = Vector3.SignedAngle(Vector3.forward, this.targetPortalLeft.transform.up, Vector3.up);
-            Debug.Log("angle change: " + angChange);
+            //Debug.Log("angle change: " + angChange);
 
             float enterAngle = Vector3.SignedAngle(this.transform.up, look.orientation.forward, Vector3.up);
-            Debug.Log("enter angle diff: " + enterAngle);
+            //Debug.Log("enter angle diff: " + enterAngle);
             angChange -= enterAngle;
-            Debug.Log("angle change new: " + angChange);
+            //Debug.Log("angle change new: " + angChange);
 
             if (p)
             {
                 look.RotateTowards(angChange);
                 look.Update();
-                entity.transform.position = activePortal.transform.position + 5.5f * look.orientation.forward;
+                entity.transform.position = activePortal.transform.position + 1.5f * look.orientation.forward;
 
                 var groundMask = LayerMask.GetMask("Ground");
                 if (Physics.Raycast(entity.transform.position, Vector3.down, out RaycastHit myHit, 100f, groundMask))
@@ -226,7 +223,7 @@ public class Portal : MonoBehaviour
         if (entity)
         {
             this.enteredPortal = this.activePortal;
-            Debug.Log(this.gameObject.name + " isRight: " + this.isRightPort);
+            //Debug.Log(this.gameObject.name + " isRight: " + this.isRightPort);
             EntityEnteredPortal(entity);
         }
     }

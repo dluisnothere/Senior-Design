@@ -143,7 +143,7 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
         // calculate moveemetn direction
-        Debug.Log("this forward: " + this.orientation.forward);
+        //Debug.Log("this forward: " + this.orientation.forward);
         this.moveDirection = this.orientation.forward * this.verticalInput + this.orientation.right * this.horizontalInput;
         //Debug.Log("ORIENTATION FORWARD");
         //Debug.Log(orientation.forward);
@@ -170,7 +170,6 @@ public class PlayerMovement : MonoBehaviour
     }
 
     //implementing walking up to a wall and changing your plane of gravity.
-
     private void Reground(RaycastHit HitInfo)
     {
         rb.freezeRotation = false;
@@ -180,66 +179,61 @@ public class PlayerMovement : MonoBehaviour
 
         if (HitInfo.normal == new Vector3(0.0f, 0.0f, -1.0f))
         {
-            this.gameObject.transform.up = new Vector3(0.0f, 0.0f, -1.0f);
-            Physics.gravity = new Vector3(0.0f, 0.0f, 9.81f);
-
-            this.orientation.up = new Vector3(0.0f, 0.0f, -1.0f);
-            this.orientation.forward = new Vector3(0.0f, 1.0f, 0.0f);
+            this.transform.RotateAround(this.transform.position, this.transform.right, -90);
+            this.cameraHolder.transform.RotateAround(this.cameraHolder.transform.position, this.cameraHolder.transform.right, -90);
 
             this.mouseLook.cameraUp = this.orientation.up;
             this.mouseLook.cameraForward = this.orientation.forward;
+
+            Physics.gravity = new Vector3(0.0f, 0.0f, 9.81f);
         }
         else if (HitInfo.normal == new Vector3(0.0f, 0.0f, 1.0f))
         {
-            this.gameObject.transform.up = new Vector3(0.0f, 0.0f, 1.0f);
-            this.gravityDir = new Vector3(0.0f, 0.0f, 1.0f);
+            this.transform.RotateAround(this.transform.position, this.transform.right, -90);
+            this.cameraHolder.transform.RotateAround(this.cameraHolder.transform.position, this.cameraHolder.transform.right, -90);
+
+            this.mouseLook.cameraUp = this.orientation.up;
+            this.mouseLook.cameraForward = this.orientation.forward;
+
+            Physics.gravity = new Vector3(0.0f, 0.0f, -9.81f);
         }
         else if (HitInfo.normal == new Vector3(0.0f, 1.0f, 0.0f))
         {
-            this.gameObject.transform.up = new Vector3(0.0f, 1.0f, 0.0f);
-            this.gravityDir = new Vector3(0.0f, 1.0f, 0.0f);
+            this.transform.RotateAround(this.transform.position, this.transform.right, -90);
+            this.cameraHolder.transform.RotateAround(this.cameraHolder.transform.position, this.cameraHolder.transform.right, -90);
+
+            this.mouseLook.cameraUp = this.orientation.up;
+            this.mouseLook.cameraForward = this.orientation.forward;
+
+            Physics.gravity = new Vector3(0.0f, -9.81f, 0.0f);
         }
         else if (HitInfo.normal == new Vector3(0.0f, -1.0f, 0.0f))
         {
-            this.gameObject.transform.up = new Vector3(0.0f, -1.0f, 0.0f);
-            this.gravityDir = new Vector3(0.0f, -1.0f, 0.0f);
-        }
-        else if (HitInfo.normal == new Vector3(1.0f, 0.0f, 0.0f))
-        {
-            //this.gameObject.transform.Rotate(0, 0, 90, Space.Self);
-
-            Debug.Log("BEFORE UP: " + this.gameObject.transform.up);
-            Debug.Log("BEFORE FORWARD: " + this.gameObject.transform.forward);
-            Debug.Log("BEFORE RIGHT: " + this.gameObject.transform.right);
-
             this.transform.RotateAround(this.transform.position, this.transform.right, -90);
-            //this.orientation.RotateAround(this.transform.position, this.transform.right, -90);
-            this.cameraHolder.transform.RotateAround(this.transform.position, this.transform.right, -90);
+            this.cameraHolder.transform.RotateAround(this.cameraHolder.transform.position, this.cameraHolder.transform.right, -180);
 
             Debug.Log("UP: " + this.gameObject.transform.up);
             Debug.Log("FORWARD: " + this.gameObject.transform.forward);
             Debug.Log("RIGHT: " + this.gameObject.transform.right);
 
-            //Vector3 newUp = new Vector3(0.0f, 0.0f, -1.0f);
-            //Vector3 newForward = new Vector3(-1.0f, 0.0f, 0.0f);
-            //Vector3 newRight = new Vector3(0.0f, 1.0f, 0.0f);
+            this.mouseLook.cameraUp = this.orientation.up;
+            this.mouseLook.cameraForward = this.orientation.forward;
 
-            Vector3 newUp = new Vector3(1.0f, 0.0f, 0.0f);
-            Vector3 newForward = new Vector3(0.0f, 1.0f, 0.0f);
-            Vector3 newRight = new Vector3(0.0f, 0.0f, 1.0f);
+            Physics.gravity = new Vector3(0.0f, 9.81f, 0.0f);
+        }
+        else if (HitInfo.normal == new Vector3(1.0f, 0.0f, 0.0f))
+        {
 
-            //this.transform.forward = newForward;
-            //this.transform.up = newUp;
-            //this.transform.right = newRight;
-            //this.transform.forward = newForward;
-            //this.transform.right = -newRight;
+            //Debug.Log("BEFORE UP: " + this.gameObject.transform.up);
+            //Debug.Log("BEFORE FORWARD: " + this.gameObject.transform.forward);
+            //Debug.Log("BEFORE RIGHT: " + this.gameObject.transform.right);
 
-            //this.gameObject.transform.up = new Vector3(0.0f, 0.0f, -1.0f);
-            //this.gameObject.transform.forward = new Vector3(-1.0f, 0.0f, 0.0f);
-            //this.gameObject.transform.right = new Vector3(0.0f, 1.0f, 0.0f);
+            this.transform.RotateAround(this.transform.position, this.transform.right, -90);
+            this.cameraHolder.transform.RotateAround(this.cameraHolder.transform.position, this.cameraHolder.transform.right, -90);
 
-            //this.orientation.up = this.gameObject.transform.up;
-            //this.orientation.forward = this.gameObject.transform.forward;
+            //Debug.Log("UP: " + this.gameObject.transform.up);
+            //Debug.Log("FORWARD: " + this.gameObject.transform.forward);
+            //Debug.Log("RIGHT: " + this.gameObject.transform.right);
 
             this.mouseLook.cameraUp = this.orientation.up;
             this.mouseLook.cameraForward = this.orientation.forward;
@@ -249,22 +243,14 @@ public class PlayerMovement : MonoBehaviour
         }
         else if (HitInfo.normal == new Vector3(-1.0f, 0.0f, 0.0f))
         {
-            this.gameObject.transform.Rotate(0, 0, -90);
-            //this.gameObject.transform.up = new Vector3(-1.0f, 0.0f, 0.0f);
-
-            //this.orientation.up = new Vector3(-1.0f, 0.0f, 0.0f);
-            //this.orientation.forward = new Vector3(0.0f, 1.0f, 0.0f);
-            this.orientation.up = this.gameObject.transform.up;
-            this.orientation.forward = this.gameObject.transform.forward;
+            this.transform.RotateAround(this.transform.position, this.transform.right, -90);
+            this.cameraHolder.transform.RotateAround(this.cameraHolder.transform.position, this.cameraHolder.transform.right, -90);
 
             this.mouseLook.cameraUp = this.orientation.up;
             this.mouseLook.cameraForward = this.orientation.forward;
+
             Physics.gravity = new Vector3(9.81f, 0.0f, 0.0f);
         }
-        //Debug.Log(this.gameObject.transform.right);
-        //Debug.Log("MY UP");
-        //Debug.Log(this.gameObject.transform.up);
-        //Debug.Log(this.gameObject.transform.forward);
 
         rb.freezeRotation = true;
     }
