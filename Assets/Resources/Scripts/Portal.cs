@@ -44,6 +44,12 @@ public class Portal : MonoBehaviour
         // Render view from the portal camera to view texture
         this.viewTexture = new RenderTexture(Screen.width, Screen.height, 0);
 
+        if (this.portalCam.targetTexture != null)
+        {
+            this.portalCam.targetTexture.Release();
+            this.portalCam.targetTexture = null;
+        }
+
         this.portalCam.targetTexture = viewTexture;
 
         Matrix4x4 playerCamNoY = playerCam.transform.localToWorldMatrix;

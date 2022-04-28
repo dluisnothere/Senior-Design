@@ -62,6 +62,8 @@ public class PlayerMovement : MonoBehaviour
 
         rb.freezeRotation = true;
         this.isJumpReady = true;
+
+        this.escherPhysicsMode = true;
     }
 
     private void Update()
@@ -135,11 +137,9 @@ public class PlayerMovement : MonoBehaviour
         {
             return;
         }
-        // calculate moveemetn direction
-        //Debug.Log("this forward: " + this.orientation.forward);
+
         this.moveDirection = this.orientation.forward * this.verticalInput + this.orientation.right * this.horizontalInput;
-        //Debug.Log("ORIENTATION FORWARD");
-        //Debug.Log(orientation.forward);
+
         if (isGrounded)
         {
             rb.AddForce(moveDirection.normalized * moveSpeed * 10f, ForceMode.Force);
@@ -165,6 +165,7 @@ public class PlayerMovement : MonoBehaviour
     // When the player leaves the Escher room, their gravity and rotation should be reset.
     public void ResetRotation()
     {
+        this.escherPhysicsMode = false;
         this.transform.rotation = Quaternion.identity;
         Physics.gravity = new Vector3(0.0f, -9.81f, 0.0f);
     }
@@ -229,17 +230,8 @@ public class PlayerMovement : MonoBehaviour
         }
         else if (HitInfo.normal == new Vector3(1.0f, 0.0f, 0.0f))
         {
-
-            //Debug.Log("BEFORE UP: " + this.gameObject.transform.up);
-            //Debug.Log("BEFORE FORWARD: " + this.gameObject.transform.forward);
-            //Debug.Log("BEFORE RIGHT: " + this.gameObject.transform.right);
-
             this.transform.RotateAround(this.transform.position, realRight, -90);
             this.cameraHolder.transform.RotateAround(this.cameraHolder.transform.position, realRight, -90);
-
-            //Debug.Log("UP: " + this.gameObject.transform.up);
-            //Debug.Log("FORWARD: " + this.gameObject.transform.forward);
-            //Debug.Log("RIGHT: " + this.gameObject.transform.right);
 
             this.mouseLook.cameraUp = this.orientation.up;
             this.mouseLook.cameraForward = this.orientation.forward;
