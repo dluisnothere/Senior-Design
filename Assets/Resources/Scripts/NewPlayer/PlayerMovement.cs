@@ -67,19 +67,12 @@ public class PlayerMovement : MonoBehaviour
     private void Update()
     {
         // Perform ground check
-        isGrounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, groundMask);
+        isGrounded = Physics.Raycast(transform.position, -this.transform.up, playerHeight * 0.5f + 0.2f, groundMask);
         MyInput();
 
         Debug.DrawRay(this.gameObject.transform.position, this.gameObject.transform.forward * 10.0f, Color.red);
         Debug.DrawRay(this.gameObject.transform.position, this.gameObject.transform.up * 10.0f, Color.blue);
         Debug.DrawRay(this.gameObject.transform.position, this.gameObject.transform.right * 10.0f, Color.green);
-
-        //Debug.Log("CURR UP: " + this.transform.up);
-        //Debug.Log("CURR RIGHt: " + this.transform.right);
-
-        //Debug.DrawRay(this.transform.position, this.orientation.forward * 10.0f, Color.red);
-        //Debug.DrawRay(this.transform.position, this.orientation.up * 10.0f, Color.blue);
-        //Debug.DrawRay(this.transform.position, this.orientation.right * 10.0f, Color.green);
 
         // apply drag
         if (isGrounded)
@@ -177,10 +170,13 @@ public class PlayerMovement : MonoBehaviour
         Debug.Log(HitInfo.normal);
         // Insert rotat player local Up Logic
 
+        Vector3 realRight = -1 * Vector3.Cross(this.transform.up, HitInfo.normal);
+
+
         if (HitInfo.normal == new Vector3(0.0f, 0.0f, -1.0f))
         {
-            this.transform.RotateAround(this.transform.position, this.transform.right, -90);
-            this.cameraHolder.transform.RotateAround(this.cameraHolder.transform.position, this.cameraHolder.transform.right, -90);
+            this.transform.RotateAround(this.transform.position, realRight, -90);
+            this.cameraHolder.transform.RotateAround(this.cameraHolder.transform.position, realRight, -90);
 
             this.mouseLook.cameraUp = this.orientation.up;
             this.mouseLook.cameraForward = this.orientation.forward;
@@ -189,8 +185,9 @@ public class PlayerMovement : MonoBehaviour
         }
         else if (HitInfo.normal == new Vector3(0.0f, 0.0f, 1.0f))
         {
-            this.transform.RotateAround(this.transform.position, this.transform.right, -90);
-            this.cameraHolder.transform.RotateAround(this.cameraHolder.transform.position, this.cameraHolder.transform.right, -90);
+
+            this.transform.RotateAround(this.transform.position, realRight, -90);
+            this.cameraHolder.transform.RotateAround(this.cameraHolder.transform.position, realRight, -90);
 
             this.mouseLook.cameraUp = this.orientation.up;
             this.mouseLook.cameraForward = this.orientation.forward;
@@ -199,8 +196,9 @@ public class PlayerMovement : MonoBehaviour
         }
         else if (HitInfo.normal == new Vector3(0.0f, 1.0f, 0.0f))
         {
-            this.transform.RotateAround(this.transform.position, this.transform.right, -90);
-            this.cameraHolder.transform.RotateAround(this.cameraHolder.transform.position, this.cameraHolder.transform.right, -90);
+
+            this.transform.RotateAround(this.transform.position, realRight, -90);
+            this.cameraHolder.transform.RotateAround(this.cameraHolder.transform.position, realRight, -90);
 
             this.mouseLook.cameraUp = this.orientation.up;
             this.mouseLook.cameraForward = this.orientation.forward;
@@ -209,8 +207,9 @@ public class PlayerMovement : MonoBehaviour
         }
         else if (HitInfo.normal == new Vector3(0.0f, -1.0f, 0.0f))
         {
-            this.transform.RotateAround(this.transform.position, this.transform.right, -90);
-            this.cameraHolder.transform.RotateAround(this.cameraHolder.transform.position, this.cameraHolder.transform.right, -180);
+
+            this.transform.RotateAround(this.transform.position, realRight, -90);
+            this.cameraHolder.transform.RotateAround(this.cameraHolder.transform.position, realRight, -180);
 
             Debug.Log("UP: " + this.gameObject.transform.up);
             Debug.Log("FORWARD: " + this.gameObject.transform.forward);
@@ -228,8 +227,8 @@ public class PlayerMovement : MonoBehaviour
             //Debug.Log("BEFORE FORWARD: " + this.gameObject.transform.forward);
             //Debug.Log("BEFORE RIGHT: " + this.gameObject.transform.right);
 
-            this.transform.RotateAround(this.transform.position, this.transform.right, -90);
-            this.cameraHolder.transform.RotateAround(this.cameraHolder.transform.position, this.cameraHolder.transform.right, -90);
+            this.transform.RotateAround(this.transform.position, realRight, -90);
+            this.cameraHolder.transform.RotateAround(this.cameraHolder.transform.position, realRight, -90);
 
             //Debug.Log("UP: " + this.gameObject.transform.up);
             //Debug.Log("FORWARD: " + this.gameObject.transform.forward);
@@ -243,8 +242,9 @@ public class PlayerMovement : MonoBehaviour
         }
         else if (HitInfo.normal == new Vector3(-1.0f, 0.0f, 0.0f))
         {
-            this.transform.RotateAround(this.transform.position, this.transform.right, -90);
-            this.cameraHolder.transform.RotateAround(this.cameraHolder.transform.position, this.cameraHolder.transform.right, -90);
+
+            this.transform.RotateAround(this.transform.position, realRight, -90);
+            this.cameraHolder.transform.RotateAround(this.cameraHolder.transform.position, realRight, -90);
 
             this.mouseLook.cameraUp = this.orientation.up;
             this.mouseLook.cameraForward = this.orientation.forward;
@@ -255,132 +255,3 @@ public class PlayerMovement : MonoBehaviour
         rb.freezeRotation = true;
     }
 }
-
-//public class PlayerMovement : MonoBehaviour
-//{
-//    // BASIC First Person Player Logic
-//    // TODO: FIX VELOCITY ISSUE
-//    //public CharacterController controller;
-//    public Rigidbody rb; 
-
-//    private float speed = 12f;
-//    private float gravity = -9.81f;
-//    private float jumpForce = 1.0f;
-
-//    public Vector3 gravityDir = new Vector3(0.0f, 1.0f, 0.0f);
-
-//    public Transform groundCheck;
-//    private float groundDistance = 0.4f;
-//    public LayerMask groundMask;
-
-//    public Vector3 velocity;
-//    private bool isGrounded;
-
-//    public Camera playerCam;
-//    public LayerMask excludePlayer;
-
-//    // PHYSICS MODE
-//    public bool riemannPhysicsMode;
-//    public bool escherPhysicsMode;
-
-//    // ESCHER PLAYER LOGIC
-//    // Ray casting for changing local up
-//    Ray RayOrigin;
-//    RaycastHit HitInfo;
-
-//    private void Start()
-//    {
-//        this.GetComponent<RiemannPhysics>().enabled = true;
-//        this.rb = this.GetComponent<Rigidbody>();
-
-//        // TODO: PUT THIS IN A DIFFERENT CLASS AND FIX
-//        this.escherPhysicsMode = false;
-//    }
-
-
-//    // Update is called once per frame
-//    void Update()
-//    {
-//        // Check for layers in the list of groundMask
-//        this.isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
-
-//        if (this.isGrounded && this.velocity.y < 0)
-//        {
-//            Debug.Log("Is grounded");
-//            //velocity.y = -2f;
-//        }
-
-//        float x = Input.GetAxis("Horizontal");
-//        float z = Input.GetAxis("Vertical");
-
-//        // Movement is all local to the player's facing direction.
-//        Vector3 move = transform.right * x + transform.forward * z;
-//        Debug.Log(move);
-
-//        // make it framerate independent
-//        // this.controller.Move(move * speed * Time.deltaTime);
-//        this.rb.MovePosition(move * speed * Time.deltaTime);
-
-//        // this.velocity
-
-//        this.velocity.y += this.gravityDir.y * this.gravity * Time.deltaTime;
-//        this.velocity.x += this.gravityDir.x * this.gravity * Time.deltaTime;
-//        this.velocity.z += this.gravityDir.z * this.gravity * Time.deltaTime;
-
-//        // given that deltaY = 1/2 * gravity * t^2 = 1/2 v * t
-//        // controller.Move(velocity * Time.deltaTime);
-//        this.rb.MovePosition(this.velocity * Time.deltaTime);
-
-//        // Raycast to check for local up
-//        if (Input.GetKey(KeyCode.E))
-//        {
-//            RayOrigin = Camera.main.ViewportPointToRay(new Vector3(0, 0, 0));
-//            if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out HitInfo, 10.0f))
-//            {
-//                Transform cameraTransform = Camera.main.transform;
-//                Debug.DrawRay(cameraTransform.position, cameraTransform.forward * 10.0f, Color.yellow);
-//                this.reground(HitInfo);
-//            }
-//        }
-
-//    }
-
-//    // implementing walking up to a wall and changing your plane of gravity. 
-//    void reground(RaycastHit HitInfo)
-//    {
-//        // Insert rotat player local Up Logic
-//        if (HitInfo.normal == new Vector3(0.0f, 0.0f, -1.0f))
-//        {
-//            this.gameObject.transform.up = new Vector3(0.0f, 0.0f, -1.0f);
-//            this.gravityDir = new Vector3(0.0f, 0.0f, -1.0f);
-//        }
-//        else if (HitInfo.normal == new Vector3(0.0f, 0.0f, 1.0f))
-//        {
-//            this.gameObject.transform.up = new Vector3(0.0f, 0.0f, 1.0f);
-//            this.gravityDir = new Vector3(0.0f, 0.0f, 1.0f);
-//        }
-//        else if (HitInfo.normal == new Vector3(0.0f, 1.0f, 0.0f))
-//        {
-//            this.gameObject.transform.up = new Vector3(0.0f, 1.0f, 0.0f);
-//            this.gravityDir = new Vector3(0.0f, 1.0f, 0.0f);
-//        }
-//        else if (HitInfo.normal == new Vector3(0.0f, -1.0f, 0.0f))
-//        {
-//            this.gameObject.transform.up = new Vector3(0.0f, -1.0f, 0.0f);
-//            this.gravityDir = new Vector3(0.0f, -1.0f, 0.0f);
-//        }
-//        else if (HitInfo.normal == new Vector3(1.0f, 0.0f, 0.0f))
-//        {
-//            this.gameObject.transform.up = new Vector3(1.0f, 0.0f, 0.0f);
-//            this.gravityDir = new Vector3(1.0f, 0.0f, 0.0f);
-//        }
-//        else if (HitInfo.normal == new Vector3(-1.0f, 0.0f, 0.0f))
-//        {
-//            this.gameObject.transform.up = new Vector3(-1.0f, 0.0f, 0.0f);
-//            this.gravityDir = new Vector3(-1.0f, 0.0f, 0.0f);
-//        }
-//        Debug.Log(this.gameObject.transform.right);
-//        Debug.Log(this.gameObject.transform.up);
-//        Debug.Log(this.gameObject.transform.forward);
-//    }
-//}
