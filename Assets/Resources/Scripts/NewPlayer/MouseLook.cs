@@ -20,11 +20,14 @@ public class MouseLook : MonoBehaviour
     public Vector3 cameraUp;
     public Vector3 cameraForward;
 
+    public PlayerMovement playerMove;
+
     // Start is called before the first frame update
     void Start()
     {
         // hide and lock curser to center of the screen
         Cursor.lockState = CursorLockMode.Locked;
+        this.playerMove = GameObject.Find("NewFPSChar").GetComponent<PlayerMovement>();
     }
 
     // Only called externally
@@ -47,12 +50,24 @@ public class MouseLook : MonoBehaviour
         float mouseX = Input.GetAxis("Mouse X") * this.mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * this.mouseSensitivity * Time.deltaTime;
 
-        upRotation = mouseX;
-        rightRotation -= mouseY;
+        if (playerMove.escherPhysicsMode)
+        {
+            upRotation = mouseX;
+            rightRotation -= mouseY;
 
-        rightRotation = Mathf.Clamp(rightRotation, -90f, 90f);
+            rightRotation = Mathf.Clamp(rightRotation, -90f, 90f);
 
-        transform.localRotation = this.orientation.rotation * Quaternion.Euler(rightRotation, upRotation, 0);
-        this.orientation.rotation *= Quaternion.Euler(0f, upRotation, 0f);
+            transform.localRotation = this.orientation.rotation * Quaternion.Euler(rightRotation, upRotation, 0);
+            this.orientation.rotation *= Quaternion.Euler(0f, upRotation, 0f);
+        } else
+        {
+            upRotation += mouseX;
+            rightRotation -= mouseY;
+
+            rightRotation = Mathf.Clamp(rightRotation, -90f, 90f);
+
+            transform.localRotation = Quaternion.Euler(rightRotation, upRotation, 0);
+            this.orientation.rotation = Quaternion.Euler(0, upRotation, 0);
+        }
     }
 }

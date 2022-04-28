@@ -223,7 +223,7 @@ public class Portal : MonoBehaviour
         if (entity)
         {
             this.enteredPortal = this.activePortal;
-            //Debug.Log(this.gameObject.name + " isRight: " + this.isRightPort);
+            Debug.Log(this.gameObject.name + " isRight: " + this.isRightPort);
             EntityEnteredPortal(entity);
         }
     }

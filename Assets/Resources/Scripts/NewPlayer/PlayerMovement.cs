@@ -162,6 +162,13 @@ public class PlayerMovement : MonoBehaviour
         isJumpReady = true;
     }
 
+    // When the player leaves the Escher room, their gravity and rotation should be reset.
+    public void ResetRotation()
+    {
+        this.transform.rotation = Quaternion.identity;
+        Physics.gravity = new Vector3(0.0f, -9.81f, 0.0f);
+    }
+
     //implementing walking up to a wall and changing your plane of gravity.
     private void Reground(RaycastHit HitInfo)
     {
