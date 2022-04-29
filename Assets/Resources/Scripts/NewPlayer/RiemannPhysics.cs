@@ -14,6 +14,8 @@ public class RiemannPhysics : MonoBehaviour
     public float n; // number of levels total
     public int currentLevelK;
 
+    public int prevHeight;
+
     public GameObject originPole; // origin of riemann surface
     public Vector3 seamAxis;
     public Vector3 origin;
@@ -126,14 +128,16 @@ public class RiemannPhysics : MonoBehaviour
     private void Start()
     {
         this.currentLevelK = 0;
-        this.radius = 20;
+        this.radius = 10;
         this.n = 3;
         this.prevPosition = this.transform.position;
+        this.prevHeight = 0;
         this.origin = this.originPole.transform.position;
         this.globalObj = GameObject.Find("GlobalObject").GetComponent<GlobalScript>() ;
         this.seamAxis = new Vector3(0, 0, -1);
         this.localUp = new Vector3(0, 1, 0); // y axis
-        this.totalTheta = Vector3.SignedAngle(this.prevPosition - this.origin, this.seamAxis, this.localUp);
+        //this.totalTheta = Vector3.SignedAngle(this.prevPosition - this.origin, this.seamAxis, this.localUp);
+        this.totalTheta = 0;
 
         this.globalObj.EnableObjects(this.currentLevelK);
 
@@ -149,20 +153,35 @@ public class RiemannPhysics : MonoBehaviour
         float deltaTheta = convertToRadians(Vector3.SignedAngle(this.gameObject.transform.position - this.origin, this.prevPosition - this.origin, this.localUp));
         this.totalTheta += deltaTheta;
 
-        //if (this.totalTheta > currentLevelK * 2.0 * Mathf.PI + 2.0 * Mathf.PI)
-        //{
-        //    this.currentLevelK++;
-        //} else if (totalTheta < currentLevelK * 2.0 * Mathf.PI - 2.0 * Mathf.PI) {
-
-        //    this.currentLevelK--;
-        //}
-        var calcK = (int)(Math.Floor(this.Solve(0)) + n) / (int)(n - 1);
-        if (calcK != this.currentLevelK)
+        if (this.totalTheta > currentLevelK * 2.0 * Mathf.PI + 2.0 * Mathf.PI)
         {
-            Debug.Log("About to enable");
-            this.currentLevelK = calcK;
-            this.globalObj.EnableObjects(this.currentLevelK);
+            this.currentLevelK++;
+            //Debug.Log(currentLevelK);
         }
+        else if (totalTheta < currentLevelK * 2.0 * Mathf.PI - 2.0 * Mathf.PI)
+        {
+
+            this.currentLevelK--;
+            //Debug.Log(currentLevelK);
+        }
+
+        //var calcK = (int)(Math.Floor(this.Solve(0)) + n) / (int)(n - 1);
+        //if (calcK != this.currentLevelK)
+        //{
+        //    Debug.Log(calcK);
+        //    this.currentLevelK = calcK;
+        //    this.globalObj.EnableObjects(this.currentLevelK);
+        //}
+
+        var height = (int)(Math.Floor(this.Solve(this.currentLevelK)) + n) / (int)(n - 1);
+        //var height = (int)(Math.Floor(this.Solve(this.currentLevelK)));
+        if (height != this.prevHeight)
+        {
+            Debug.Log(height);
+            this.prevHeight = height;
+            this.globalObj.EnableObjects(this.prevHeight);
+        }
+
         //Debug.Log("currentLevelK: " + this.currentLevelK);
         this.prevPosition = this.gameObject.transform.position;
     }
@@ -173,10 +192,22 @@ public class RiemannPhysics : MonoBehaviour
         // 3. calculate angle theta relative to the seam AKA the portal location
         // 4. Iterate over k = {1,2,...,n-1} and solve for the root corresponding to each k using DeMoivre's Theorem
         // 5. Each root [(rel, im) pair] corresponds to a unique room. Just need to know which room you want. 
+
         double rRootN = Math.Pow(radius, 1 / n);
-        double a = Math.Cos((this.totalTheta + 2*Mathf.PI) / n);
-        double b = Math.Sin((this.totalTheta + 2*Mathf.PI) / n);
+        double a = Math.Cos((this.totalTheta + 2 * Mathf.PI * k) / n);
+        double b = Math.Sin((this.totalTheta + 2 * Mathf.PI * k) / n);
 
         return rRootN * a;
+        //float pz = (this.prevPosition - this.origin).z;
+        ////.Log("pz: " + pz);
+
+        //float rRootN = Mathf.Pow(radius, 1 / n);
+        ////Debug.Log("rRootN: " + rRootN);
+        //double finalK = (n * System.Math.Asin((pz / rRootN) / radius) - this.totalTheta) / (2 * Mathf.PI);
+        ////Debug.Log("pz/rRootN: " + (pz / rRootN) / radius);
+        ////Debug.Log("asin: " + System.Math.Asin((pz / rRootN) / radius));
+        ////Debug.Log(finalK);
+        //return finalK;
+
     }
 }
